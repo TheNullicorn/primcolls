@@ -26,18 +26,6 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
     )
 
     /**
-     * Creates a new list containing each supplied double, in the same order that they are supplied.
-     *
-     * The supplied array is copied, so modifying it after the list is created will not affect the
-     * list's contents.
-     *
-     * This is equivalent to
-     *
-     * @param[contents]
-     */
-    constructor(vararg contents: Double) : this(contents.copyOf())
-
-    /**
      * Appends a [value] to the end of the list.
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
@@ -172,5 +160,23 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
             if (i < lastIndex) contents += ", "
         }
         return "[$contents]"
+    }
+
+    companion object Factory {
+
+        /**
+         * Creates a new list containing each supplied double, in the same order that they are
+         * supplied.
+         *
+         * The supplied array is copied, so modifying it after the list is created will not affect
+         * the list's contents.
+         *
+         * ```kotlin
+         * DoubleList(initialCapacity = contents.size).addAll(*contents)
+         * ```
+         *
+         * @param[contents] the elements to copy into the list.
+         */
+        fun of(vararg contents: Double) = DoubleList(contents.copyOf())
     }
 }

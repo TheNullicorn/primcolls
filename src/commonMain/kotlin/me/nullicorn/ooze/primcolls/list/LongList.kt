@@ -26,18 +26,6 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
     )
 
     /**
-     * Creates a new list containing each supplied long, in the same order that they are supplied.
-     *
-     * The supplied array is copied, so modifying it after the list is created will not affect the
-     * list's contents.
-     *
-     * This is equivalent to
-     *
-     * @param[contents]
-     */
-    constructor(vararg contents: Long) : this(contents.copyOf())
-
-    /**
      * Appends a [value] to the end of the list.
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
@@ -172,5 +160,23 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
             if (i < lastIndex) contents += ", "
         }
         return "[$contents]"
+    }
+
+    companion object Factory {
+
+        /**
+         * Creates a new list containing each supplied long, in the same order that they are
+         * supplied.
+         *
+         * The supplied array is copied, so modifying it after the list is created will not affect
+         * the list's contents.
+         *
+         * ```kotlin
+         * LongList(initialCapacity = contents.size).addAll(*contents)
+         * ```
+         *
+         * @param[contents] the elements to copy into the list.
+         */
+        fun of(vararg contents: Long) = LongList(contents.copyOf())
     }
 }
