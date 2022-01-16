@@ -25,6 +25,18 @@ abstract class PrimitiveList {
         get() = size - 1
 
     /**
+     * Checks if the list has any elements in it.
+     *
+     * This is equivalent to:
+     * ```kotlin
+     * size == 0
+     * ```
+     *
+     * @return `false` if the list has any elements. Otherwise `false`.
+     */
+    fun isEmpty(): Boolean = (size == 0)
+
+    /**
      * The number of elements that the list's current allocation can hold.
      *
      * The setter for this var should reallocate the list's contents into a new array with the
