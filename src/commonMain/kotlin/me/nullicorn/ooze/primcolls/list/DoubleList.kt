@@ -18,8 +18,12 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * @param[initialCapacity] The maximum number of elements that the list can hold without
      * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
-    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(DoubleArray(initialCapacity))
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        DoubleArray(checkCapacity(initialCapacity))
+    )
 
     /**
      * Creates a new list containing each supplied double, in the same order that they are supplied.

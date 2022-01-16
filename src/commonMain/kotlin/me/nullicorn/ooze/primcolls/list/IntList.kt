@@ -18,8 +18,12 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * @param[initialCapacity] The maximum number of elements that the list can hold without
      * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
-    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(IntArray(initialCapacity))
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        IntArray(checkCapacity(initialCapacity))
+    )
 
     /**
      * Creates a new list containing each supplied int, in the same order that they are supplied.

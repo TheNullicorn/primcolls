@@ -18,8 +18,12 @@ class ShortList private constructor(private var storage: ShortArray) : Primitive
      *
      * @param[initialCapacity] The maximum number of elements that the list can hold without
      * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
-    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(ShortArray(initialCapacity))
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        ShortArray(checkCapacity(initialCapacity))
+    )
 
     /**
      * Creates a new list containing each supplied short, in the same order that they are supplied.

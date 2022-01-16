@@ -18,8 +18,12 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * @param[initialCapacity] The maximum number of elements that the list can hold without
      * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
-    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(LongArray(initialCapacity))
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        LongArray(checkCapacity(initialCapacity))
+    )
 
     /**
      * Creates a new list containing each supplied long, in the same order that they are supplied.

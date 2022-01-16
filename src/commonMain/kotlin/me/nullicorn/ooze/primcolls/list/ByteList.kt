@@ -18,8 +18,12 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
      *
      * @param[initialCapacity] The maximum number of elements that the list can hold without
      * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
-    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(ByteArray(initialCapacity))
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        ByteArray(checkCapacity(initialCapacity))
+    )
 
     /**
      * Creates a new list containing each supplied byte, in the same order that they are supplied.

@@ -139,5 +139,9 @@ abstract class PrimitiveList {
          * The amount to divide the list's [capacity] by whenever it [shrinks][shrinkIfExcessive].
          */
         private const val SHRINK_FACTOR = 2.0
+
+        fun checkCapacity(capacity: Int): Int =
+            if (capacity >= 0) capacity
+            else throw IllegalArgumentException("capacity cannot be negative: $capacity")
     }
 }
