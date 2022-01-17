@@ -49,22 +49,6 @@ abstract class PrimitiveList {
         get() = 0..lastIndex
 
     /**
-     * The number of elements that the list's current allocation can hold.
-     *
-     * The setter for this var should reallocate the list's contents into a new array with the
-     * supplied size. If the value is less than the current capacity, any trailing elements should
-     * be cut off. If it's larger, the trailing values should be filled with the default value for
-     * the primitive.
-     */
-    protected abstract var capacity: Int
-
-    /**
-     * Shifts every element in the internal storage container back by `1` index starting at the
-     * [index] specified, effectively removing that element from the list.
-     */
-    protected abstract fun collapseElementAt(index: Int)
-
-    /**
      * Removes the element at a given [index] in the list.
      *
      * Any elements at greater indices will have their indices decreased by `1`, filling in the spot
@@ -88,6 +72,22 @@ abstract class PrimitiveList {
      * Shorthand for [remove]-ing the value at a specific [index].
      */
     operator fun minusAssign(index: Int) = remove(index)
+
+    /**
+     * The number of elements that the list's current allocation can hold.
+     *
+     * The setter for this var should reallocate the list's contents into a new array with the
+     * supplied size. If the value is less than the current capacity, any trailing elements should
+     * be cut off. If it's larger, the trailing values should be filled with the default value for
+     * the primitive.
+     */
+    protected abstract var capacity: Int
+
+    /**
+     * Shifts every element in the internal storage container back by `1` index starting at the
+     * [index] specified, effectively removing that element from the list.
+     */
+    protected abstract fun collapseElementAt(index: Int)
 
     /**
      * Ensures that a supplied [index] is within the bounds of the list.
