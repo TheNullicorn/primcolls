@@ -63,7 +63,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
      * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
      */
-    fun get(index: Int) = storage[checkIndex(index)]
+    operator fun get(index: Int) = storage[checkIndex(index)]
 
     /**
      * Retrieves the values of each long between two indices.
@@ -137,6 +137,11 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      * @return an array of all the list's elements, in the same order.
      */
     fun toArray() = storage.copyOf(size)
+
+    /**
+     * Shorthand for [add]-ing a [value].
+     */
+    operator fun plusAssign(value: Long) = add(value)
 
     override var capacity: Int
         get() = storage.size

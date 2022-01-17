@@ -73,6 +73,11 @@ abstract class PrimitiveList {
     }
 
     /**
+     * Shorthand for [remove]-ing the value at a specific [index].
+     */
+    operator fun minusAssign(index: Int) = remove(index)
+
+    /**
      * Ensures that a supplied [index] is within the bounds of the list.
      *
      * @return the supplied [index].
