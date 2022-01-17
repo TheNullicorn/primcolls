@@ -3,6 +3,9 @@ package me.nullicorn.ooze.primcolls.list
 /**
  * An ordered, dynamically-sized collection of [Long] values.
  *
+ * Duplicate elements are supported, meaning the same long value can be added and retrieved from
+ * multiple indices in the same list without replacing previous appearances of it.
+ *
  * @param[storage] The internal container for the list's elements.
  * This array's size is typically larger than the [list's][size].
  */

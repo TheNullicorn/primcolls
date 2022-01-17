@@ -5,6 +5,9 @@ import kotlin.math.min
 
 /**
  * An ordered, dynamically-sized collection of values, all with the same primitive type.
+ *
+ * Duplicate elements are supported, meaning the same value can be added and retrieved from multiple
+ * indices in the same list without replacing previous appearances of it.
  */
 abstract class PrimitiveList {
 
