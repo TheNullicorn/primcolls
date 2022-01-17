@@ -40,6 +40,15 @@ abstract class PrimitiveList {
     fun isEmpty(): Boolean = (size == 0)
 
     /**
+     * The valid range of indices for the list.
+     *
+     * These values are guaranteed to not cause an [IndexOutOfBoundsException] when passed to a
+     * method that accepts an index as a parameter.
+     */
+    val indices: IntRange
+        get() = 0..lastIndex
+
+    /**
      * The number of elements that the list's current allocation can hold.
      *
      * The setter for this var should reallocate the list's contents into a new array with the
