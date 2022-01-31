@@ -51,7 +51,7 @@ class FloatList private constructor(private var storage: FloatArray) : Primitive
      *
      * @param[values] Any floats to append to the list.
      */
-    fun addAll(vararg values: Float) {
+    fun addAll(values: FloatArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

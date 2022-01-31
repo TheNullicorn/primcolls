@@ -51,7 +51,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * @param[values] Any longs to append to the list.
      */
-    fun addAll(vararg values: Long) {
+    fun addAll(values: LongArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

@@ -51,7 +51,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * @param[values] Any doubles to append to the list.
      */
-    fun addAll(vararg values: Double) {
+    fun addAll(values: DoubleArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

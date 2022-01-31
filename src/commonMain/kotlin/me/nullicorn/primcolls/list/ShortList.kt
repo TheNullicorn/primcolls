@@ -51,7 +51,7 @@ class ShortList private constructor(private var storage: ShortArray) : Primitive
      *
      * @param[values] Any shorts to append to the list.
      */
-    fun addAll(vararg values: Short) {
+    fun addAll(values: ShortArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

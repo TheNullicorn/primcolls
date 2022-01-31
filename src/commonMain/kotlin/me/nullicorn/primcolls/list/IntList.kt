@@ -51,7 +51,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * @param[values] Any ints to append to the list.
      */
-    fun addAll(vararg values: Int) {
+    fun addAll(values: IntArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

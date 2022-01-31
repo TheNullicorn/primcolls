@@ -51,7 +51,7 @@ class CharList private constructor(private var storage: CharArray) : PrimitiveLi
      *
      * @param[values] Any chars to append to the list.
      */
-    fun addAll(vararg values: Char) {
+    fun addAll(values: CharArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)

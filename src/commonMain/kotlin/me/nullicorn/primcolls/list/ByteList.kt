@@ -51,7 +51,7 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
      *
      * @param[values] Any bytes to append to the list.
      */
-    fun addAll(vararg values: Byte) {
+    fun addAll(values: ByteArray) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)
