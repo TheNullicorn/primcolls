@@ -1,15 +1,15 @@
-package me.nullicorn.ooze.primcolls.list
+package me.nullicorn.primcolls.list
 
 /**
- * An ordered, dynamically-sized collection of [Int] values.
+ * An ordered, dynamically-sized collection of [Float] values.
  *
- * Duplicate elements are supported, meaning the same int value can be added and retrieved from
+ * Duplicate elements are supported, meaning the same float value can be added and retrieved from
  * multiple indices in the same list without replacing previous appearances of it.
  *
  * @param[storage] The internal container for the list's elements.
  * This array's size is typically larger than the [list's][size].
  */
-class IntList private constructor(private var storage: IntArray) : PrimitiveList() {
+class FloatList private constructor(private var storage: FloatArray) : PrimitiveList() {
 
     /**
      * Creates an empty list, allocating enough memory to hold a specific number of elements.
@@ -25,7 +25,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
     constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
-        IntArray(checkCapacity(initialCapacity))
+        FloatArray(checkCapacity(initialCapacity))
     )
 
     /**
@@ -33,9 +33,9 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
      *
-     * @param[value] The int to insert into the list at the [lastIndex].
+     * @param[value] The float to insert into the list at the [lastIndex].
      */
-    fun add(value: Int) {
+    fun add(value: Float) {
         ensureCapacity(size + 1)
         storage[size++] = value
     }
@@ -49,9 +49,9 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * This operation increases the list's [size] by the number of [values] supplied.
      *
-     * @param[values] Any ints to append to the list.
+     * @param[values] Any floats to append to the list.
      */
-    fun addAll(vararg values: Int) {
+    fun addAll(vararg values: Float) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)
@@ -69,7 +69,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
     operator fun get(index: Int) = storage[checkIndex(index)]
 
     /**
-     * Retrieves the values of each int between two indices.
+     * Retrieves the values of each float between two indices.
      *
      * @param[fromIndex] The (inclusive) index of the first element to retrieve.
      * @param[toIndex] The (exclusive) index of the last element to retrieve.
@@ -79,7 +79,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      * [lastIndex].
      * @throws[IllegalArgumentException] if [toIndex] is less than [fromIndex].
      */
-    fun getAll(fromIndex: Int = 0, toIndex: Int = size): IntArray {
+    fun getAll(fromIndex: Int = 0, toIndex: Int = size): FloatArray {
         checkIndex(fromIndex)
         checkIndex(toIndex)
         require(fromIndex < toIndex) { "toIndex cannot be less than fromIndex" }
@@ -93,7 +93,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      * @param[value] The value to compare each element to.
      * @return whether the list contains an equivalent element.
      */
-    fun contains(value: Int): Boolean {
+    fun contains(value: Float): Boolean {
         for (i in 0 until size)
             if (storage[i] == value)
                 return true
@@ -108,7 +108,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEach(consumer: (value: Int) -> Unit) {
+    fun forEach(consumer: (value: Float) -> Unit) {
         for (i in 0 until size)
             consumer(storage[i])
     }
@@ -121,13 +121,13 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEachIndexed(consumer: (index: Int, value: Int) -> Unit) {
+    fun forEachIndexed(consumer: (index: Int, value: Float) -> Unit) {
         for (i in 0 until size)
             consumer(i, storage[i])
     }
 
     /**
-     * Copies the contents of the list, order preserved, into an [IntArray] with the same [size].
+     * Copies the contents of the list, order preserved, into a [FloatArray] with the same [size].
      *
      * This the equivalent of:
      * ```kotlin
@@ -144,7 +144,7 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
     /**
      * Shorthand for [add]-ing a [value].
      */
-    operator fun plusAssign(value: Int) = add(value)
+    operator fun plusAssign(value: Float) = add(value)
 
     override var capacity: Int
         get() = storage.size
@@ -173,18 +173,18 @@ class IntList private constructor(private var storage: IntArray) : PrimitiveList
     companion object Factory {
 
         /**
-         * Creates a new list containing each supplied int, in the same order that they are
+         * Creates a new list containing each supplied float, in the same order that they are
          * supplied.
          *
          * The supplied array is copied, so modifying it after the list is created will not affect
          * the list's contents.
          *
          * ```kotlin
-         * IntList(initialCapacity = contents.size).addAll(*contents)
+         * FloatList(initialCapacity = contents.size).addAll(*contents)
          * ```
          *
          * @param[contents] the elements to copy into the list.
          */
-        fun of(vararg contents: Int) = IntList(contents.copyOf())
+        fun of(vararg contents: Float) = FloatList(contents.copyOf())
     }
 }

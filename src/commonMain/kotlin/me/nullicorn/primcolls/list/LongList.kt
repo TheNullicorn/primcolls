@@ -1,15 +1,15 @@
-package me.nullicorn.ooze.primcolls.list
+package me.nullicorn.primcolls.list
 
 /**
- * An ordered, dynamically-sized collection of [Double] values.
+ * An ordered, dynamically-sized collection of [Long] values.
  *
- * Duplicate elements are supported, meaning the same double value can be added and retrieved from
+ * Duplicate elements are supported, meaning the same long value can be added and retrieved from
  * multiple indices in the same list without replacing previous appearances of it.
  *
  * @param[storage] The internal container for the list's elements.
  * This array's size is typically larger than the [list's][size].
  */
-class DoubleList private constructor(private var storage: DoubleArray) : PrimitiveList() {
+class LongList private constructor(private var storage: LongArray) : PrimitiveList() {
 
     /**
      * Creates an empty list, allocating enough memory to hold a specific number of elements.
@@ -25,7 +25,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
     constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
-        DoubleArray(checkCapacity(initialCapacity))
+        LongArray(checkCapacity(initialCapacity))
     )
 
     /**
@@ -33,9 +33,9 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
      *
-     * @param[value] The double to insert into the list at the [lastIndex].
+     * @param[value] The long to insert into the list at the [lastIndex].
      */
-    fun add(value: Double) {
+    fun add(value: Long) {
         ensureCapacity(size + 1)
         storage[size++] = value
     }
@@ -49,9 +49,9 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * This operation increases the list's [size] by the number of [values] supplied.
      *
-     * @param[values] Any doubles to append to the list.
+     * @param[values] Any longs to append to the list.
      */
-    fun addAll(vararg values: Double) {
+    fun addAll(vararg values: Long) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)
@@ -69,7 +69,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
     operator fun get(index: Int) = storage[checkIndex(index)]
 
     /**
-     * Retrieves the values of each double between two indices.
+     * Retrieves the values of each long between two indices.
      *
      * @param[fromIndex] The (inclusive) index of the first element to retrieve.
      * @param[toIndex] The (exclusive) index of the last element to retrieve.
@@ -79,7 +79,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      * [lastIndex].
      * @throws[IllegalArgumentException] if [toIndex] is less than [fromIndex].
      */
-    fun getAll(fromIndex: Int = 0, toIndex: Int = size): DoubleArray {
+    fun getAll(fromIndex: Int = 0, toIndex: Int = size): LongArray {
         checkIndex(fromIndex)
         checkIndex(toIndex)
         require(fromIndex < toIndex) { "toIndex cannot be less than fromIndex" }
@@ -93,7 +93,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      * @param[value] The value to compare each element to.
      * @return whether the list contains an equivalent element.
      */
-    fun contains(value: Double): Boolean {
+    fun contains(value: Long): Boolean {
         for (i in 0 until size)
             if (storage[i] == value)
                 return true
@@ -108,7 +108,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEach(consumer: (value: Double) -> Unit) {
+    fun forEach(consumer: (value: Long) -> Unit) {
         for (i in 0 until size)
             consumer(storage[i])
     }
@@ -121,13 +121,13 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEachIndexed(consumer: (index: Int, value: Double) -> Unit) {
+    fun forEachIndexed(consumer: (index: Int, value: Long) -> Unit) {
         for (i in 0 until size)
             consumer(i, storage[i])
     }
 
     /**
-     * Copies the contents of the list, order preserved, into a [DoubleArray] with the same [size].
+     * Copies the contents of the list, order preserved, into a [LongArray] with the same [size].
      *
      * This the equivalent of:
      * ```kotlin
@@ -144,7 +144,7 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
     /**
      * Shorthand for [add]-ing a [value].
      */
-    operator fun plusAssign(value: Double) = add(value)
+    operator fun plusAssign(value: Long) = add(value)
 
     override var capacity: Int
         get() = storage.size
@@ -173,18 +173,18 @@ class DoubleList private constructor(private var storage: DoubleArray) : Primiti
     companion object Factory {
 
         /**
-         * Creates a new list containing each supplied double, in the same order that they are
+         * Creates a new list containing each supplied long, in the same order that they are
          * supplied.
          *
          * The supplied array is copied, so modifying it after the list is created will not affect
          * the list's contents.
          *
          * ```kotlin
-         * DoubleList(initialCapacity = contents.size).addAll(*contents)
+         * LongList(initialCapacity = contents.size).addAll(*contents)
          * ```
          *
          * @param[contents] the elements to copy into the list.
          */
-        fun of(vararg contents: Double) = DoubleList(contents.copyOf())
+        fun of(vararg contents: Long) = LongList(contents.copyOf())
     }
 }

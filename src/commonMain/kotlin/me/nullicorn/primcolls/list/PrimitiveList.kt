@@ -1,4 +1,4 @@
-package me.nullicorn.ooze.primcolls.list
+package me.nullicorn.primcolls.list
 
 import kotlin.math.ceil
 import kotlin.math.min

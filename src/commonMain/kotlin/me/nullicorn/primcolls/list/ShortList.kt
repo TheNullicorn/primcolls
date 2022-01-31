@@ -1,15 +1,15 @@
-package me.nullicorn.ooze.primcolls.list
+package me.nullicorn.primcolls.list
 
 /**
- * An ordered, dynamically-sized collection of [Long] values.
+ * An ordered, dynamically-sized collection of [Short] values.
  *
- * Duplicate elements are supported, meaning the same long value can be added and retrieved from
+ * Duplicate elements are supported, meaning the same short value can be added and retrieved from
  * multiple indices in the same list without replacing previous appearances of it.
  *
  * @param[storage] The internal container for the list's elements.
  * This array's size is typically larger than the [list's][size].
  */
-class LongList private constructor(private var storage: LongArray) : PrimitiveList() {
+class ShortList private constructor(private var storage: ShortArray) : PrimitiveList() {
 
     /**
      * Creates an empty list, allocating enough memory to hold a specific number of elements.
@@ -25,7 +25,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
      */
     constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
-        LongArray(checkCapacity(initialCapacity))
+        ShortArray(checkCapacity(initialCapacity))
     )
 
     /**
@@ -33,9 +33,9 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
      *
-     * @param[value] The long to insert into the list at the [lastIndex].
+     * @param[value] The short to insert into the list at the [lastIndex].
      */
-    fun add(value: Long) {
+    fun add(value: Short) {
         ensureCapacity(size + 1)
         storage[size++] = value
     }
@@ -49,9 +49,9 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * This operation increases the list's [size] by the number of [values] supplied.
      *
-     * @param[values] Any longs to append to the list.
+     * @param[values] Any shorts to append to the list.
      */
-    fun addAll(vararg values: Long) {
+    fun addAll(vararg values: Short) {
         ensureCapacity(size + values.size)
 
         values.copyInto(storage, destinationOffset = this.size)
@@ -69,7 +69,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
     operator fun get(index: Int) = storage[checkIndex(index)]
 
     /**
-     * Retrieves the values of each long between two indices.
+     * Retrieves the values of each short between two indices.
      *
      * @param[fromIndex] The (inclusive) index of the first element to retrieve.
      * @param[toIndex] The (exclusive) index of the last element to retrieve.
@@ -79,7 +79,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      * [lastIndex].
      * @throws[IllegalArgumentException] if [toIndex] is less than [fromIndex].
      */
-    fun getAll(fromIndex: Int = 0, toIndex: Int = size): LongArray {
+    fun getAll(fromIndex: Int = 0, toIndex: Int = size): ShortArray {
         checkIndex(fromIndex)
         checkIndex(toIndex)
         require(fromIndex < toIndex) { "toIndex cannot be less than fromIndex" }
@@ -93,7 +93,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      * @param[value] The value to compare each element to.
      * @return whether the list contains an equivalent element.
      */
-    fun contains(value: Long): Boolean {
+    fun contains(value: Short): Boolean {
         for (i in 0 until size)
             if (storage[i] == value)
                 return true
@@ -108,7 +108,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEach(consumer: (value: Long) -> Unit) {
+    fun forEach(consumer: (value: Short) -> Unit) {
         for (i in 0 until size)
             consumer(storage[i])
     }
@@ -121,13 +121,13 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
      *
      * @throws[Throwable] if the consumer throws anything during an iteration.
      */
-    fun forEachIndexed(consumer: (index: Int, value: Long) -> Unit) {
+    fun forEachIndexed(consumer: (index: Int, value: Short) -> Unit) {
         for (i in 0 until size)
             consumer(i, storage[i])
     }
 
     /**
-     * Copies the contents of the list, order preserved, into a [LongArray] with the same [size].
+     * Copies the contents of the list, order preserved, into a [ShortArray] with the same [size].
      *
      * This the equivalent of:
      * ```kotlin
@@ -144,7 +144,7 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
     /**
      * Shorthand for [add]-ing a [value].
      */
-    operator fun plusAssign(value: Long) = add(value)
+    operator fun plusAssign(value: Short) = add(value)
 
     override var capacity: Int
         get() = storage.size
@@ -173,18 +173,18 @@ class LongList private constructor(private var storage: LongArray) : PrimitiveLi
     companion object Factory {
 
         /**
-         * Creates a new list containing each supplied long, in the same order that they are
+         * Creates a new list containing each supplied short, in the same order that they are
          * supplied.
          *
          * The supplied array is copied, so modifying it after the list is created will not affect
          * the list's contents.
          *
          * ```kotlin
-         * LongList(initialCapacity = contents.size).addAll(*contents)
+         * ShortList(initialCapacity = contents.size).addAll(*contents)
          * ```
          *
          * @param[contents] the elements to copy into the list.
          */
-        fun of(vararg contents: Long) = LongList(contents.copyOf())
+        fun of(vararg contents: Short) = ShortList(contents.copyOf())
     }
 }

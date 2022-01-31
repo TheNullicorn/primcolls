@@ -1,4 +1,4 @@
-package me.nullicorn.ooze.primcolls.list
+package me.nullicorn.primcolls.list
 
 /**
  * An ordered, dynamically-sized collection of [Char] values.
