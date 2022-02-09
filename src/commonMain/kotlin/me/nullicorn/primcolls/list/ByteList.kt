@@ -29,6 +29,31 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
     )
 
     /**
+     * Retrieves the value at a given [index] in the list.
+     *
+     * @param[index] The `0` based offset of the desired element.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
+     */
+    operator fun get(index: Int) = storage[checkIndex(index)]
+
+    /**
+     * Replaces the [value] at a given [index] in the list.
+     *
+     * This operation does not affect the list's [size] or [lastIndex].
+     *
+     * @param[index] The `0` based offset of the element to replace.
+     * @param[value] The new value for the element.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
+     */
+    operator fun set(index: Int, value: Byte) {
+        storage[checkIndex(index)] = value
+    }
+
+    /**
      * Appends a [value] to the end of the list.
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
@@ -53,7 +78,7 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
      * Before | 1  | 1  | 2  | 3  | 5  | 8  | 13 | 21 |
      * After  | 1  | 1  | 2  | 3  | 99 | 5  | 8  | 13 | 21 |
      * ```
-     * If [value] is equal to the list's [size], then the function behaves the same as [add]; the
+     * If [index] is equal to the list's [size], then the function behaves the same as [add]; the
      * value is simply appended to the end of the list, and no other elements are shifted.
      *
      * This operation increases the list's [size] and [lastIndex] each by `1`.
