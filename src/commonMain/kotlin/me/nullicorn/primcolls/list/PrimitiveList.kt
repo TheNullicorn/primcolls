@@ -160,5 +160,29 @@ abstract class PrimitiveList {
         fun checkCapacity(capacity: Int): Int =
             if (capacity >= 0) capacity
             else throw IllegalArgumentException("capacity cannot be negative: $capacity")
+
+        /**
+         * Helper for checking that two indices can be use to define a range in a collection with a
+         * given [size].
+         *
+         * @param[start] The lower bound of the range; inclusive.
+         * @param[end] The upper bound of the range; exclusive.
+         * @param[size] The size of the collection.
+         * @param[sizeVarName] Lazy function returning the name of the [size] variable. e.g. `size`
+         * or `value.size`.
+         */
+        inline fun checkRange(start: Int, end: Int, size: Int, sizeVarName: () -> String) {
+            if (start < 0) throw IndexOutOfBoundsException(
+                "start index ($start) cannot be negative"
+            )
+
+            if (end > size) throw IndexOutOfBoundsException(
+                "end index ($end) cannot exceed ${sizeVarName()} ($size)"
+            )
+
+            if (end < start) throw IllegalArgumentException(
+                "start index ($start) must be less than end ($end)"
+            )
+        }
     }
 }

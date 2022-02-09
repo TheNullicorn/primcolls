@@ -118,6 +118,9 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
      * that the last element supplied will be the last element in the list immediately after this
      * operation.
      *
+     * This function behaves the same as running [add] with each of the [values], in order. However,
+     * this function is better optimized for adding multiple values at once.
+     *
      * This operation increases the list's [size] by the number of [values] supplied.
      *
      * @param[values] Any bytes to append to the list.
@@ -174,14 +177,40 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
     }
 
     /**
-     * Retrieves the value at a given [index] in the list.
+     * Appends all values in a specific range of an array to the end of the list.
      *
-     * @param[index] The `0` based offset of the desired element.
+     * This method behaves the same as [addAll], except it only inserts values within a specific
+     * range of the [values] array.
      *
-     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
-     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
+     * If [start] == [end] (and both are in range of the [values] array), then this has no effect on
+     * the list.
+     *
+     * @param[values] The array to take values from, and whose indices [start] and [end] refer to.
+     * @param[start] The (inclusive) index of the first element to retrieve.
+     * @param[end] The (exclusive) index of the last element to retrieve.
+     *
+     * @throws[IndexOutOfBoundsException] if [start] or [end] are negative numbers.
+     * @throws[IndexOutOfBoundsException] if [start] >= [values]`.size`.
+     * @throws[IndexOutOfBoundsException] if [end] > [values]`.size`.
+     * @throws[IllegalArgumentException] if [end] is less than [start].
      */
-    operator fun get(index: Int) = storage[checkIndex(index)]
+    fun addRange(values: ByteArray, start: Int = 0, end: Int = values.size) {
+        checkRange(start, end, values.size) { "values.size" }
+
+        // Short-circuit if the range's size is 0; nothing to add.
+        if (start == end) return
+
+        val addedValues: Int = end - start
+        ensureCapacity(size + addedValues)
+
+        values.copyInto(
+            destination = storage,
+            destinationOffset = this.size,
+            startIndex = start,
+            endIndex = end
+        )
+        size += addedValues
+    }
 
     /**
      * Retrieves the values of each byte between two indices.
