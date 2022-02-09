@@ -1,10 +1,14 @@
-import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
+import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
+    // Kotlin language & docs
     kotlin("multiplatform") version "1.6.10"
-    java
-    signing
-    `maven-publish`
+    id("org.jetbrains.dokka") version "1.6.10"
+
+    // Publishing to Sonatype & Maven Central.
+    id("java")
+    id("signing")
+    id("maven-publish")
 }
 
 group = "me.nullicorn"
@@ -16,21 +20,22 @@ repositories {
 
 kotlin {
     jvm {
+        withJava()
+
+        // Target Java 8
         compilations.all {
             kotlinOptions.jvmTarget = "1.8"
         }
-        withJava()
+
+        // Use JUnit for unit tests
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
     }
 
-    js(IR) {
-        binaries.executable()
-
-        val testConfig: KotlinJsTest.() -> Unit = { useMocha { timeout = "10000" } }
-        nodejs { testTask(testConfig) }
-        browser { testTask(testConfig) }
+    js(BOTH) {
+        nodejs()
+        browser()
     }
 
     sourceSets {
@@ -41,72 +46,73 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation(kotlin("test"))
             }
         }
     }
+}
+
+val dokkaHtml by tasks.getting(DokkaTask::class)
+
+val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    dependsOn(dokkaHtml)
+    archiveClassifier.set("javadoc")
+    from(dokkaHtml.outputDirectory)
 }
 
 publishing {
-    repositories {
-        maven {
-            val repoId =
-                if (version.toString().endsWith("SNAPSHOT")) "snapshot"
-                else "release"
+    // Add extra metadata for the JVM jar's pom.xml.
+    publications.withType<MavenPublication> {
+        val authorUrl = project.extra["author.url"] as String
+        val projectName = project.extra["name"] as String
+        val projectUrl = "$authorUrl/$projectName"
 
-            url = uri(project.extra["repo.$repoId.url"] as String)
+        artifact(tasks["javadocJar"])
+
+        pom {
+            url.set("https://$projectUrl")
+
+            developers {
+                developer {
+                    name.set("TheNullicorn")
+                    email.set("bennullicorn@gmail.com")
+                }
+            }
+
+            licenses {
+                license {
+                    name.set("MIT License")
+                    url.set("https://opensource.org/licenses/mit-license.php")
+                }
+            }
+
+            scm {
+                url.set("https://$projectUrl/tree/main")
+                connection.set("scm:git:git://$projectUrl.git")
+                developerConnection.set("scm:git:ssh://$projectUrl.git")
+            }
         }
     }
 
-    publications {
-        create<MavenPublication>("maven") {
-            val authorUrl = project.extra["author.url"] as String
+    repositories {
+        maven {
+            name = "ossrh"
 
-            pom {
-                url.set("https://$authorUrl/$name")
+            val repoId =
+                if (version.toString().endsWith("SNAPSHOT")) "snapshot"
+                else "release"
+            url = uri(project.extra["repo.$repoId.url"] as String)
 
-                developers {
-                    developer {
-                        name.set("TheNullicorn")
-                        email.set("bennullicorn@gmail.com")
-                    }
-                }
-
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/mit-license.php")
-                    }
-                }
-
-                scm {
-                    url.set("https://$authorUrl/$name/tree/master")
-                    connection.set("scm:git:git://$authorUrl/$name.git")
-                    developerConnection.set("scm:git:ssh://$authorUrl/$name.git")
-                }
+            credentials {
+                // Both values should be set in "~/.gradle/gradle.properties".
+                username = (project.extra["ossrhUsername"] as String)
+                password = (project.extra["ossrhPassword"] as String)
             }
         }
     }
 }
 
-tasks {
-    val javadocJar by creating(Jar::class) {
-        dependsOn.add(javadoc)
-        archiveClassifier.set("javadoc")
-        from(javadoc)
-    }
-
-    artifacts {
-        archives(sourcesJar)
-        archives(javadocJar)
-        archives(jar)
-    }
-}
-
+// Sign all of our artifacts for Nexus.
 signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(tasks["jar"], tasks["sourcesJar"], tasks["javadocJar"])
+    sign(publishing.publications)
 }
