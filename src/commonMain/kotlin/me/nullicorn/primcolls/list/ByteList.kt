@@ -105,6 +105,50 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
     }
 
     /**
+     * Inserts all [values] from an array into the list, starting at a specific [index].
+     *
+     * The [values] are inserted in the order that they appear in the supplied array. This means
+     * that the first element in the array will be inserted at [index], the second element at
+     * [index] `+ 1`, and so on.
+     *
+     * Any existing list elements at or beyond the [index] will move to the index equal to
+     * `i + values.size`, where `i` is the element's current index, and `values.size` is the size of
+     * the supplied [values] array.
+     *
+     * If [index] is equal to the list's [size], then the function behaves the same as [addAll]; the
+     * values are simply appended to the end of the list, and no other elements are shifted.
+     *
+     * This operation increases the list's [size] by the number of [values] supplied.
+     *
+     * @param[index] The first index in the list that the [values] should start being inserted at.
+     * @param[values] The bytes to insert into the list, in order.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [size].
+     */
+    fun addAllAt(index: Int, values: ByteArray) {
+        // Use the normal addAll() behavior if the index == lastIndex + 1 (aka size).
+        if (index == size)
+            return addAll(values)
+
+        if (index < 0 || index > size)
+            throw IndexOutOfBoundsException("index=$index, size=$size")
+
+        // Shift each element's index up, starting at the index supplied.
+        ensureCapacity(size + values.size)
+        storage.copyInto(
+            destination = storage,
+            destinationOffset = index + values.size,
+            startIndex = index,
+            endIndex = size
+        )
+
+        // Insert the values into the array, starting at the index supplied.
+        values.copyInto(storage, destinationOffset = index)
+        size += values.size
+    }
+
+    /**
      * Retrieves the value at a given [index] in the list.
      *
      * @param[index] The `0` based offset of the desired element.
