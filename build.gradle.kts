@@ -38,6 +38,7 @@ kotlin {
         browser()
     }
 
+    @Suppress("UNUSED_VARIABLE") // Suppressed b/c IntelliJ marks each val as unused.
     sourceSets {
         val commonMain by getting {
             dependencies {
