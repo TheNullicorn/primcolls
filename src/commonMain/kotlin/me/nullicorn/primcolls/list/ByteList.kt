@@ -41,6 +41,52 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
     }
 
     /**
+     * Inserts a [value] at a specific [index] in the list.
+     *
+     * Any values previously at or beyond the [index] will each be shifted to the next index. For
+     * example...
+     * ```text
+     * addAt(index = 4, value = 99)
+     *
+     * Index  | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  |
+     * —————————————————————————————————————————————————————
+     * Before | 1  | 1  | 2  | 3  | 5  | 8  | 13 | 21 |
+     * After  | 1  | 1  | 2  | 3  | 99 | 5  | 8  | 13 | 21 |
+     * ```
+     * If [value] is equal to the list's [size], then the function behaves the same as [add]; the
+     * value is simply appended to the end of the list, and no other elements are shifted.
+     *
+     * This operation increases the list's [size] and [lastIndex] each by `1`.
+     *
+     * @param[index] The index in the list that the value should be inserted at.
+     * @param[value] The byte to insert into the list at the [index].
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [size].
+     */
+    fun addAt(index: Int, value: Byte) {
+        // Use the normal add() behavior if the index == lastIndex + 1 (aka size).
+        if (index == size)
+            return add(value)
+
+        if (index < 0 || index > size)
+            throw IndexOutOfBoundsException("index=$index, size=$size")
+
+        // Shift each element up by 1 index, starting at the index supplied.
+        ensureCapacity(size + 1)
+        storage.copyInto(
+            destination = storage,
+            destinationOffset = index + 1,
+            startIndex = index,
+            endIndex = size
+        )
+
+        // Insert the element at the supplied index.
+        storage[index] = value
+        size++
+    }
+
+    /**
      * Appends an array of [values] to the end of the list.
      *
      * The [values] are appended in the order that they appear in the supplied array. This means
