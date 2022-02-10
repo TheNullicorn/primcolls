@@ -215,20 +215,18 @@ class ByteList private constructor(private var storage: ByteArray) : PrimitiveLi
     /**
      * Retrieves the values of each byte between two indices.
      *
-     * @param[fromIndex] The (inclusive) index of the first element to retrieve.
-     * @param[toIndex] The (exclusive) index of the last element to retrieve.
+     * @param[start] The (inclusive) index of the first element to retrieve.
+     * @param[end] The (exclusive) index of the last element to retrieve.
      *
-     * @throws[IndexOutOfBoundsException] if [fromIndex] or [toIndex] are negative numbers.
-     * @throws[IndexOutOfBoundsException] if [fromIndex] or [toIndex] are greater than the list's
-     * [lastIndex].
-     * @throws[IllegalArgumentException] if [toIndex] is less than [fromIndex].
+     * @throws[IndexOutOfBoundsException] if [start] or [end] are negative numbers.
+     * @throws[IndexOutOfBoundsException] if [start] >= [size].
+     * @throws[IndexOutOfBoundsException] if [end] > [size].
+     * @throws[IllegalArgumentException] if [end] is less than [start].
      */
-    fun getAll(fromIndex: Int = 0, toIndex: Int = size): ByteArray {
-        checkIndex(fromIndex)
-        checkIndex(toIndex)
-        require(fromIndex < toIndex) { "toIndex cannot be less than fromIndex" }
+    fun getAll(start: Int = 0, end: Int = size): ByteArray {
+        checkRange(start, end, size) { "size" }
 
-        return storage.copyOfRange(fromIndex, toIndex)
+        return storage.copyOfRange(start, end)
     }
 
     /**
