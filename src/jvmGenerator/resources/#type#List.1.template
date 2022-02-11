@@ -1,0 +1,332 @@
+package me.nullicorn.primcolls.list
+
+/**
+ * An ordered, dynamically-sized collection of [#type#] values.
+ *
+ * Duplicate elements are supported, meaning the same #friendly_name# value can be added and retrieved from
+ * multiple indices in the same list without replacing previous appearances of it.
+ *
+ * @param[storage] The internal container for the list's elements.
+ * This array's size is typically larger than the [list's][size].
+ */
+class #type#List private constructor(private var storage: #array_type#) : PrimitiveList() {
+
+    /**
+     * Creates an empty list, allocating enough memory to hold a specific number of elements.
+     *
+     * This is useful if the size (or maximum size) of the data is known ahead of time. This does
+     * not restrict the list from growing if more than that many elements are added.
+     *
+     * If no value is supplied, `12` is used as an arbitrary default.
+     *
+     * @param[initialCapacity] The maximum number of elements that the list can hold without
+     * reallocation.
+     *
+     * @throws[IllegalArgumentException] if [initialCapacity] is a negative number.
+     */
+    constructor(initialCapacity: Int = DEFAULT_CAPACITY) : this(
+        #array_type#(checkCapacity(initialCapacity))
+    )
+
+    /**
+     * Retrieves the value at a given [index] in the list.
+     *
+     * @param[index] The `0` based offset of the desired element.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
+     */
+    operator fun get(index: Int) = storage[checkIndex(index)]
+
+    /**
+     * Replaces the [value] at a given [index] in the list.
+     *
+     * This operation does not affect the list's [size] or [lastIndex].
+     *
+     * @param[index] The `0` based offset of the element to replace.
+     * @param[value] The new value for the element.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [lastIndex].
+     */
+    operator fun set(index: Int, value: #type#) {
+        storage[checkIndex(index)] = value
+    }
+
+    /**
+     * Shorthand for [add]-ing a [value].
+     */
+    operator fun plusAssign(value: #type#) = add(value)
+
+    /**
+     * Appends a [value] to the end of the list.
+     *
+     * This operation increases the list's [size] and [lastIndex] each by `1`.
+     *
+     * @param[value] The #friendly_name# to insert into the list at the [lastIndex].
+     */
+    fun add(value: #type#) {
+        ensureCapacity(size + 1)
+        storage[size++] = value
+    }
+
+    /**
+     * Inserts a [value] at a specific [index] in the list.
+     *
+     * Any values previously at or beyond the [index] will each be shifted to the next index. For
+     * example...
+     * ```text
+     * addAt(index = 4, value = 99)
+     *
+     * Index  | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  |
+     * —————————————————————————————————————————————————————
+     * Before | 1  | 1  | 2  | 3  | 5  | 8  | 13 | 21 |
+     * After  | 1  | 1  | 2  | 3  | 99 | 5  | 8  | 13 | 21 |
+     * ```
+     * If [index] is equal to the list's [size], then the function behaves the same as [add]; the
+     * value is simply appended to the end of the list, and no other elements are shifted.
+     *
+     * This operation increases the list's [size] and [lastIndex] each by `1`.
+     *
+     * @param[index] The index in the list that the value should be inserted at.
+     * @param[value] The #friendly_name# to insert into the list at the [index].
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [size].
+     */
+    fun addAt(index: Int, value: #type#) {
+        // Use the normal add() behavior if the index == lastIndex + 1 (aka size).
+        if (index == size)
+            return add(value)
+
+        if (index < 0 || index > size)
+            throw IndexOutOfBoundsException("index=$index, size=$size")
+
+        // Shift each element up by 1 index, starting at the index supplied.
+        ensureCapacity(size + 1)
+        storage.copyInto(
+            destination = storage,
+            destinationOffset = index + 1,
+            startIndex = index,
+            endIndex = size
+        )
+
+        // Insert the element at the supplied index.
+        storage[index] = value
+        size++
+    }
+
+    /**
+     * Appends an array of [values] to the end of the list.
+     *
+     * The [values] are appended in the order that they appear in the supplied array. This means
+     * that the last element supplied will be the last element in the list immediately after this
+     * operation.
+     *
+     * This function behaves the same as running [add] with each of the [values], in order. However,
+     * this function is better optimized for adding multiple values at once.
+     *
+     * This operation increases the list's [size] by the number of [values] supplied.
+     *
+     * @param[values] Any #friendly_name#s to append to the list.
+     */
+    fun addAll(values: #array_type#) {
+        ensureCapacity(size + values.size)
+
+        values.copyInto(storage, destinationOffset = this.size)
+        size += values.size
+    }
+
+    /**
+     * Inserts all [values] from an array into the list, starting at a specific [index].
+     *
+     * The [values] are inserted in the order that they appear in the supplied array. This means
+     * that the first element in the array will be inserted at [index], the second element at
+     * [index] `+ 1`, and so on.
+     *
+     * Any existing list elements at or beyond the [index] will move to the index equal to
+     * `i + values.size`, where `i` is the element's current index, and `values.size` is the size of
+     * the supplied [values] array.
+     *
+     * If [index] is equal to the list's [size], then the function behaves the same as [addAll]; the
+     * values are simply appended to the end of the list, and no other elements are shifted.
+     *
+     * This operation increases the list's [size] by the number of [values] supplied.
+     *
+     * @param[index] The first index in the list that the [values] should start being inserted at.
+     * @param[values] The #friendly_name#s to insert into the list, in order.
+     *
+     * @throws[IndexOutOfBoundsException] if the [index] is a negative number.
+     * @throws[IndexOutOfBoundsException] if the [index] is greater than the list's [size].
+     */
+    fun addAllAt(index: Int, values: #array_type#) {
+        // Use the normal addAll() behavior if the index == lastIndex + 1 (aka size).
+        if (index == size)
+            return addAll(values)
+
+        if (index < 0 || index > size)
+            throw IndexOutOfBoundsException("index=$index, size=$size")
+
+        // Shift each element's index up, starting at the index supplied.
+        ensureCapacity(size + values.size)
+        storage.copyInto(
+            destination = storage,
+            destinationOffset = index + values.size,
+            startIndex = index,
+            endIndex = size
+        )
+
+        // Insert the values into the array, starting at the index supplied.
+        values.copyInto(storage, destinationOffset = index)
+        size += values.size
+    }
+
+    /**
+     * Appends all values in a specific range of an array to the end of the list.
+     *
+     * This method behaves the same as [addAll], except it only inserts values within a specific
+     * range of the [values] array.
+     *
+     * If [start] == [end] (and both are in range of the [values] array), then this has no effect on
+     * the list.
+     *
+     * @param[values] The array to take values from, and whose indices [start] and [end] refer to.
+     * @param[start] The (inclusive) index of the first element to retrieve.
+     * @param[end] The (exclusive) index of the last element to retrieve.
+     *
+     * @throws[IndexOutOfBoundsException] if [start] or [end] are negative numbers.
+     * @throws[IndexOutOfBoundsException] if [start] >= [values]`.size`.
+     * @throws[IndexOutOfBoundsException] if [end] > [values]`.size`.
+     * @throws[IllegalArgumentException] if [end] is less than [start].
+     */
+    fun addRange(values: #array_type#, start: Int = 0, end: Int = values.size) {
+        checkRange(start, end, values.size) { "values.size" }
+
+        // Short-circuit if the range's size is 0; nothing to add.
+        if (start == end) return
+
+        val addedValues: Int = end - start
+        ensureCapacity(size + addedValues)
+
+        values.copyInto(
+            destination = storage,
+            destinationOffset = this.size,
+            startIndex = start,
+            endIndex = end
+        )
+        size += addedValues
+    }
+
+    /**
+     * Retrieves the values of each #friendly_name# between two indices.
+     *
+     * @param[start] The (inclusive) index of the first element to retrieve.
+     * @param[end] The (exclusive) index of the last element to retrieve.
+     *
+     * @throws[IndexOutOfBoundsException] if [start] or [end] are negative numbers.
+     * @throws[IndexOutOfBoundsException] if [start] >= [size].
+     * @throws[IndexOutOfBoundsException] if [end] > [size].
+     * @throws[IllegalArgumentException] if [end] is less than [start].
+     */
+    fun getAll(start: Int = 0, end: Int = size): #array_type# {
+        checkRange(start, end, size) { "size" }
+
+        return storage.copyOfRange(start, end)
+    }
+
+    /**
+     * Checks if any element in the list is equal to a specific [value].
+     *
+     * @param[value] The value to compare each element to.
+     * @return whether the list contains an equivalent element.
+     */
+    fun contains(value: #type#): Boolean {
+        for (i in 0 until size)
+            if (storage[i] == value)
+                return true
+
+        return false
+    }
+
+    /**
+     * Iterates over each element in the list, in order, passing them to a supplied [consumer].
+     *
+     * @param[consumer] The function to pass each element to.
+     *
+     * @throws[Throwable] if the consumer throws anything during an iteration.
+     */
+    fun forEach(consumer: (value: #type#) -> Unit) {
+        for (i in 0 until size)
+            consumer(storage[i])
+    }
+
+    /**
+     * Iterates over each element in the list, in order, passing them to a supplied [consumer] along
+     * with the element's index in the list.
+     *
+     * @param[consumer] The function to pass each index/element pair to.
+     *
+     * @throws[Throwable] if the consumer throws anything during an iteration.
+     */
+    fun forEachIndexed(consumer: (index: Int, value: #type#) -> Unit) {
+        for (i in 0 until size)
+            consumer(i, storage[i])
+    }
+
+    /**
+     * Copies the contents of the list, order preserved, into a [#array_type#] with the same [size].
+     *
+     * This the equivalent of:
+     * ```kotlin
+     * getAll(fromIndex = 0, toIndex = size)
+     * ```
+     *
+     * Any element in the resulting array will be equal to the element at the same index in the
+     * list.
+     *
+     * @return an array of all the list's elements, in the same order.
+     */
+    fun toArray() = storage.copyOf(size)
+
+    override var capacity: Int
+        get() = storage.size
+        set(newCapacity) {
+            require(newCapacity >= 0) { "capacity cannot be negative: $newCapacity" }
+
+            if (newCapacity > storage.size)
+                storage = storage.copyOf(newCapacity)
+            else if (newCapacity < storage.size)
+                storage = storage.copyOfRange(0, newCapacity)
+        }
+
+    override fun collapseElementAt(index: Int) {
+        storage.copyInto(storage, destinationOffset = index, startIndex = index + 1)
+    }
+
+    override fun toString(): String {
+        var contents = ""
+        for (i in 0 until size) {
+            contents += storage[i]
+            if (i < lastIndex) contents += ", "
+        }
+        return "[$contents]"
+    }
+
+    companion object Factory {
+
+        /**
+         * Creates a new list containing each supplied #friendly_name#, in the same order that they are
+         * supplied.
+         *
+         * The supplied array is copied, so modifying it after the list is created will not affect
+         * the list's contents.
+         *
+         * ```kotlin
+         * #type#List(initialCapacity = contents.size).addAll(*contents)
+         * ```
+         *
+         * @param[contents] the elements to copy into the list.
+         */
+        fun of(vararg contents: #type#) = #type#List(contents.copyOf())
+    }
+}
