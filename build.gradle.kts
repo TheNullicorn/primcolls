@@ -19,12 +19,53 @@ repositories {
 }
 
 kotlin {
-    jvm {
-        withJava()
+    // This has to go before JVM compilations, or else the "generator" compilation can't find its
+    // source set.
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-common"))
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
 
-        // Target Java 8
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+        // Code generator's source.
+        val jvmGenerator by sourceSets.creating {
+            kotlin.srcDir("src/generator/kotlin")
+            resources.srcDir("src/generator/resources")
+
+            dependencies {
+                implementation(kotlin("stdlib"))
+            }
+        }
+    }
+
+    jvm {
+        compilations {
+            // Target Java 8.
+            all { kotlinOptions.jvmTarget = "1.8" }
+
+            // Regular jvmMain compilation.
+            val main by getting
+
+            // Separate compilation for the code generator.
+            val generator by compilations.creating {
+                val compilationName = name
+
+                val runGenerator by tasks.registering(JavaExec::class) {
+                    dependsOn("compileGeneratorKotlinJvm", "compileKotlinJvm")
+
+                    mainClass.set("TemplatedGeneratorKt")
+                    classpath = files(
+                        runtimeDependencyFiles,
+                        "$buildDir/classes/kotlin/jvm/$compilationName",
+                    )
+                }
+            }
         }
 
         // Use JUnit for unit tests
@@ -37,25 +78,11 @@ kotlin {
         nodejs()
         browser()
     }
-
-    @Suppress("UNUSED_VARIABLE") // Suppressed b/c IntelliJ marks each val as unused.
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-    }
 }
 
+// KDoc HTML generation; required for Maven Central.
 val dokkaHtml by tasks.getting(DokkaTask::class)
-
-val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+val javadocJar by tasks.registering(Jar::class) {
     dependsOn(dokkaHtml)
     archiveClassifier.set("javadoc")
     from(dokkaHtml.outputDirectory)
