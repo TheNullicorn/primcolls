@@ -59,11 +59,18 @@ kotlin {
                 val runGenerator by tasks.registering(JavaExec::class) {
                     dependsOn("compileGeneratorKotlinJvm", "compileKotlinJvm")
 
-                    mainClass.set("TemplatedGeneratorKt")
+                    mainClass.set("GeneratorKt")
                     classpath = files(
                         runtimeDependencyFiles,
                         "$buildDir/classes/kotlin/jvm/$compilationName",
                     )
+
+                    val generatorInputDir = sourceSets["jvmGenerator"].resources.srcDirs.first()
+                    val generatorOutputDir = sourceSets["commonMain"].kotlin.srcDirs.first()
+
+                    args = "--input $generatorInputDir --output $generatorOutputDir"
+                        .split(' ')
+                        .toList()
                 }
             }
         }
