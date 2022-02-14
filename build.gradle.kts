@@ -1,7 +1,7 @@
 plugins {
-    // Kotlin language & docs
-    kotlin("multiplatform") version "1.6.10"
-    id("org.jetbrains.dokka") version "1.6.10"
+    // Kotlin language & docs.
+    kotlin("multiplatform")
+    id("org.jetbrains.dokka")
 
     // Publishing to Sonatype & Maven Central.
     id("java")
